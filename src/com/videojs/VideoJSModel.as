@@ -555,6 +555,14 @@ package com.videojs{
             return 1;
         }
 
+        public function get levels():Object
+        {
+            if(_provider){
+                return _provider.levels;
+            }
+            return null;
+        }
+
         /**
          * Returns the currently used stream level.
          */

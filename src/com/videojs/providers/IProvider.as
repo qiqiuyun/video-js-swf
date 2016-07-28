@@ -192,6 +192,8 @@ package com.videojs.providers{
          */
         function get numberOfLevels():int;
 
+        function get levels():Object;
+
         /**
          * Should return the currently used stream level.
          */

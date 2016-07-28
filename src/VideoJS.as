@@ -299,6 +299,9 @@ package{
                 case "level":
                     return _app.model.level;
                     break;
+                case "levels":
+                    return _app.model.levels;
+                    break;
                 case "autoLevelEnabled":
                     return _app.model.autoLevelEnabled;
                     break;

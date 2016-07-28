@@ -14,6 +14,7 @@ package com.videojs.providers{
 
   import org.mangui.hls.HLS;
   import org.mangui.hls.event.HLSEvent;
+  import org.mangui.hls.event.HLSLoadMetrics;
   import org.mangui.hls.constant.HLSTypes;
   import org.mangui.hls.HLSSettings;
   import org.mangui.hls.constant.HLSPlayStates;
@@ -38,6 +39,7 @@ package com.videojs.providers{
         private var _readyState:Number = ReadyState.HAVE_NOTHING;
         private var _position:Number = 0;
         private var _duration:Number = 0;
+        private var _isNeedUpdateDuration:Boolean = true;
         private var _isAutoPlay:Boolean = false;
         private var _isManifestLoaded:Boolean = false;
         private var _isPlaying:Boolean = false;
@@ -51,7 +53,7 @@ package com.videojs.providers{
         private var _backBufferedTime:Number = 0;
 
         public function HLSProvider() {
-          Log.info("https://github.com/mangui/flashls/releases/tag/v0.4.1.1");
+          Log.debug("https://github.com/mangui/flashls/releases/tag/v0.4.1.1");
           _hls = new HLS();
           _model = VideoJSModel.getInstance();
           _metadata = {};
@@ -62,6 +64,10 @@ package com.videojs.providers{
           _hls.addEventListener(HLSEvent.PLAYBACK_STATE,_playbackStateHandler);
           _hls.addEventListener(HLSEvent.SEEK_STATE,_seekStateHandler);
           _hls.addEventListener(HLSEvent.LEVEL_SWITCH,_levelSwitchHandler);
+          /**
+           * Source Modify by Zhao Yang 增加获取网速事件
+           */
+          _hls.addEventListener(HLSEvent.FRAGMENT_LOADED,_fragmentHandler);
         }
 
         private function _completeHandler(event:HLSEvent):void {
@@ -93,6 +99,7 @@ package com.videojs.providers{
           _duration = event.levels[0].duration;
           _metadata.width = event.levels[0].width;
           _metadata.height = event.levels[0].height;
+          _hls.currentLevel = _hls.levels.length - 1;
           if(_isAutoPlay || _looping) {
             _looping = false;
             play();
@@ -108,7 +115,12 @@ package com.videojs.providers{
           _bufferedTime = event.mediatime.buffer+event.mediatime.position;
           _backBufferedTime = event.mediatime.position - event.mediatime.backbuffer;
           
-          if(event.mediatime.duration != _duration) {
+          /**
+           * Source Modify by Zhao Yang 去掉duration更新
+           */
+          
+          if(event.mediatime.duration != _duration && _isNeedUpdateDuration) {
+            _isNeedUpdateDuration = false;
             _duration = event.mediatime.duration;
             _model.broadcastEventExternally(ExternalEventName.ON_DURATION_CHANGE, _duration);
           }
@@ -185,8 +197,30 @@ package com.videojs.providers{
             var bitrate:Number = _hls.levels[levelIndex].bitrate;
             var width:Number = _hls.levels[levelIndex].width;
             var height:Number = _hls.levels[levelIndex].height;
-            Log.info("HLSProvider: new level index " + levelIndex + " bitrate=" + bitrate + ", width=" + width + ", height=" + height);
+            Log.debug("HLSProvider: new level index " + levelIndex + " bitrate=" + bitrate + ", width=" + width + ", height=" + height);
             _model.broadcastEventExternally(ExternalEventName.ON_LEVEL_SWITCH, {levelIndex: levelIndex, bitrate: bitrate, width: width, height: height});
+        }
+
+        /**
+         * Source Modify by Zhao Yang 增加事件load level
+         */
+        private function _levelLoadHandler():void {
+            var levelIndex:Number = _hls.loadLevel;
+            var bitrate:Number = _hls.levels[levelIndex].bitrate;
+            var width:Number = _hls.levels[levelIndex].width;
+            var height:Number = _hls.levels[levelIndex].height;
+            Log.debug("HLSProvider: new level load index " + levelIndex + " bitrate=" + bitrate + ", width=" + width + ", height=" + height);
+            _model.broadcastEventExternally(ExternalEventName.ON_LEVEL_LOAD, {levelIndex: levelIndex, bitrate: bitrate, width: width, height: height});
+        }
+
+        /**
+         * Source Modify by Zhao Yang 增加事件每一片切片的速度，单位 KB/s
+         */
+        private function _fragmentHandler(event:HLSEvent):void {
+            var metrics : HLSLoadMetrics = event.loadMetrics;
+            Log.debug("HLSProvider: network: " + Math.round(metrics.bandwidth / 1024 /8) + " kb/s");
+            var speed:Number = Math.round(metrics.bandwidth / 1024 /8);
+            _model.broadcastEventExternally(ExternalEventName.ON_NETWORK_SPEED, {speed: speed, bandwidth: metrics.bandwidth});
         }
 
         private function _onFrame(event:Event):void
@@ -203,6 +237,10 @@ package com.videojs.providers{
             Log.info("video size changed to ("+newWidth+","+newHeight+")");
             _model.broadcastEvent(new VideoPlaybackEvent(VideoPlaybackEvent.ON_VIDEO_DIMENSION_UPDATE, {videoWidth: newWidth, videoHeight: newHeight}));
           }
+          /**
+             * Source Modify by Zhao Yang 增加事件load level
+             */
+            _levelLoadHandler();
         }
 
         public function get loop():Boolean{
@@ -544,11 +582,22 @@ package com.videojs.providers{
         }
 
         /**
+         * Source Modify by Zhao Yang
+         */
+        public function get levels():Object
+        {
+            return _hls.levels;
+        }
+
+        /**
          * Should return the currently used stream level.
          */
         public function get level():int
         {
-            return _hls['level'];
+          /**
+           * Source Modify by Zhao Yang
+           */
+            return _hls.loadLevel;
         }
 
         /**
@@ -558,7 +607,10 @@ package com.videojs.providers{
          */
         public function set level(pLevel:int):void
         {
-            _hls['level'] = pLevel;
+            /**
+             * Source Modify by Zhao Yang
+             */
+            _hls.currentLevel = pLevel;
 
             // For reflecting new level from the next segment. Otherwise, new setting is applied only after currently buffered data is gone.
             if (!isNaN(_position) && pLevel != -1) {
@@ -571,7 +623,10 @@ package com.videojs.providers{
           */
         public function get autoLevelEnabled():Boolean
         {
-            return _hls['autolevel'];
+            /**
+             * Source Modify by Zhao Yang
+             */
+            return _hls.autoLevel;
         }
     }
 }
