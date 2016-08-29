@@ -1,6 +1,7 @@
 package{
 
     import com.videojs.VideoJSApp;
+    import com.videojs.entry.VideoJsEntry;
     import com.videojs.events.VideoJSEvent;
     import com.videojs.structs.ExternalEventName;
     import com.videojs.structs.ExternalErrorEventName;
@@ -30,6 +31,8 @@ package{
 
         private var _app:VideoJSApp;
         private var _stageSizeTimer:Timer;
+
+        private var entry:VideoJsEntry = null;
 
         public function VideoJS(){
 
@@ -65,6 +68,9 @@ package{
             _ctxMenu.hideBuiltInItems();
             _ctxMenu.customItems.push(_ctxVersion, _ctxAbout);
             this.contextMenu = _ctxMenu;
+
+            entry = new VideoJsEntry(stage.loaderInfo.parameters,_app.model.stageRect.width,_app.model.stageRect.height);
+            addChild(entry);
 
         }
 
