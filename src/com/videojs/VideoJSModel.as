@@ -266,7 +266,7 @@ package com.videojs{
         public function set srcFromFlashvars(pValue:String):void {
             _src = pValue;
             // detect HLS by checking the extension of src
-			if(_src.search(/(https?|file)\:\/\/.*?\.m3u8(\?.*)?/i) != -1){
+            if(_src.search(/(https?|file)\:\/\/.*?\.m3u8(\?.*)?/i) != -1){
                 _currentPlaybackType = PlaybackType.HLS;
             }
             else{
@@ -555,6 +555,9 @@ package com.videojs{
             return 1;
         }
 
+        /**
+         * Source Modify by Zhao Yang
+         */
         public function get levels():Object
         {
             if(_provider){

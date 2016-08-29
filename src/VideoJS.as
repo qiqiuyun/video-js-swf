@@ -20,6 +20,8 @@ package{
     import flash.utils.ByteArray;
     import flash.utils.Timer;
     import flash.utils.setTimeout;
+    import flash.utils.clearTimeout;
+    import org.mangui.hls.utils.Log;
 
     [SWF(backgroundColor="#000000", frameRate="60", width="480", height="270")]
     public class VideoJS extends Sprite{
@@ -164,6 +166,9 @@ package{
         }
 
         private function onAddedToStage(e:Event):void{
+            /**
+             * Source Modify by Zhao Yang 增加双击事件
+             */
             stage.addEventListener(MouseEvent.CLICK, onStageClick);
             stage.addEventListener(Event.RESIZE, onStageResize);
             stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -299,6 +304,9 @@ package{
                 case "level":
                     return _app.model.level;
                     break;
+                /**
+                 * Source Modify by Zhao Yang
+                 */
                 case "levels":
                     return _app.model.levels;
                     break;

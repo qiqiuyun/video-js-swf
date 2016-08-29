@@ -396,10 +396,12 @@ package com.videojs.providers{
             return 1;
         }
 
+        /**
+         * Source Modify by Zhao Yang
+         */
         public function get levels():Object{
             return null;
         }
-
         public function get level():int{
             return 0;
         }

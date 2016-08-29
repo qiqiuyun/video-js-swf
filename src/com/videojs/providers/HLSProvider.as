@@ -55,6 +55,8 @@ package com.videojs.providers{
         public function HLSProvider() {
           Log.debug("https://github.com/mangui/flashls/releases/tag/v0.4.1.1");
           _hls = new HLS();
+          
+
           _model = VideoJSModel.getInstance();
           _metadata = {};
           _hls.addEventListener(HLSEvent.PLAYBACK_COMPLETE,_completeHandler);
@@ -64,10 +66,12 @@ package com.videojs.providers{
           _hls.addEventListener(HLSEvent.PLAYBACK_STATE,_playbackStateHandler);
           _hls.addEventListener(HLSEvent.SEEK_STATE,_seekStateHandler);
           _hls.addEventListener(HLSEvent.LEVEL_SWITCH,_levelSwitchHandler);
+          _hls.addEventListener(HLSEvent.LEVEL_LOADED,_levelLoadHandler);
           /**
            * Source Modify by Zhao Yang 增加获取网速事件
            */
           _hls.addEventListener(HLSEvent.FRAGMENT_LOADED,_fragmentHandler);
+
         }
 
         private function _completeHandler(event:HLSEvent):void {
@@ -124,6 +128,7 @@ package com.videojs.providers{
             _duration = event.mediatime.duration;
             _model.broadcastEventExternally(ExternalEventName.ON_DURATION_CHANGE, _duration);
           }
+          
         };
 
         private function _playbackStateHandler(event:HLSEvent):void {
@@ -220,8 +225,10 @@ package com.videojs.providers{
             var metrics : HLSLoadMetrics = event.loadMetrics;
             Log.debug("HLSProvider: network: " + Math.round(metrics.bandwidth / 1024 /8) + " kb/s");
             var speed:Number = Math.round(metrics.bandwidth / 1024 /8);
-            _model.broadcastEventExternally(ExternalEventName.ON_NETWORK_SPEED, {speed: speed, bandwidth: metrics.bandwidth});
+            _model.broadcastEventExternally(ExternalEventName.ON_NETWORK_SPEED, {speed: speed, bandwidth: metrics.bandwidth, size: metrics.size, url:event.url});
         }
+
+        
 
         private function _onFrame(event:Event):void
         {
@@ -234,13 +241,13 @@ package com.videojs.providers{
           {
             _mediaWidth = newWidth;
             _mediaHeight = newHeight;
-            Log.info("video size changed to ("+newWidth+","+newHeight+")");
+            Log.debug("video size changed to ("+newWidth+","+newHeight+")");
             _model.broadcastEvent(new VideoPlaybackEvent(VideoPlaybackEvent.ON_VIDEO_DIMENSION_UPDATE, {videoWidth: newWidth, videoHeight: newHeight}));
-          }
-          /**
+            /**
              * Source Modify by Zhao Yang 增加事件load level
              */
             _levelLoadHandler();
+          }
         }
 
         public function get loop():Boolean{
@@ -456,6 +463,7 @@ package com.videojs.providers{
             _duration = 0;
             _bufferedTime = 0;
             _hls.load(_src.m3u8);
+
           }
         }
 
@@ -594,7 +602,7 @@ package com.videojs.providers{
          */
         public function get level():int
         {
-          /**
+            /**
            * Source Modify by Zhao Yang
            */
             return _hls.loadLevel;
@@ -608,8 +616,8 @@ package com.videojs.providers{
         public function set level(pLevel:int):void
         {
             /**
-             * Source Modify by Zhao Yang
-             */
+           * Source Modify by Zhao Yang
+           */
             _hls.currentLevel = pLevel;
 
             // For reflecting new level from the next segment. Otherwise, new setting is applied only after currently buffered data is gone.
@@ -623,10 +631,10 @@ package com.videojs.providers{
           */
         public function get autoLevelEnabled():Boolean
         {
-            /**
-             * Source Modify by Zhao Yang
-             */
-            return _hls.autoLevel;
+          /**
+           * Source Modify by Zhao Yang
+           */
+          return _hls.autoLevel;
         }
     }
 }

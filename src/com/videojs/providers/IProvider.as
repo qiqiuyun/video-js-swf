@@ -192,6 +192,9 @@ package com.videojs.providers{
          */
         function get numberOfLevels():int;
 
+        /**
+         * Source Modify by Zhao Yang
+         */
         function get levels():Object;
 
         /**

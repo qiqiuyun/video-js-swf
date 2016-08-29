@@ -24,8 +24,19 @@ package com.videojs.structs{
         public static const ON_STAGE_CLICK:String = "stageclick";
         public static const ON_LEVEL_SWITCH:String = "levelswitch";
 
+        /**
+         * Source Modify by Zhao Yang 增加事件load level
+         */
         public static const ON_LEVEL_LOAD:String = "levelswitched";
+
+        /**
+         * Source Modify by Zhao Yang 增加事件获取每一片速度
+         */
         public static const ON_NETWORK_SPEED:String = "networkspeed";
+
+        /**
+         * Source Modify by Zhao Yang 增加双击事件
+         */
         public static const ON_DOUBLE_CLICK:String = "dblclick";
         
     }
