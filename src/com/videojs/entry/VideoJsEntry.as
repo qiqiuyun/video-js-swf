@@ -1,5 +1,8 @@
 package com.videojs.entry
 {
+	import com.videojs.VideoJSModel;
+	import com.videojs.events.VideoJSEvent;
+	
 	import flash.display.Loader;
 	import flash.display.Sprite;
 	import flash.events.Event;
@@ -35,6 +38,8 @@ package com.videojs.entry
 		private var loader:Loader = null;
 		
 		private var text:TextField = null;
+
+		private var _model:VideoJSModel = null;
 		
 		public function VideoJsEntry(param:Object,w:Number,h:Number)
 		{
@@ -50,10 +55,79 @@ package com.videojs.entry
 			fingerprint_size = param["fingerprint_size"];
 			fingerprint_color = param["fingerprint_color"];
 			fingerprint_duration = param["fingerprint_duration"];
+
+			_model = VideoJSModel.getInstance();
+			_model.addEventListener(VideoJSEvent.STAGE_RESIZE, onStageResize);
 			
 			loadPrint();
 			
 			setThumb();
+		}
+
+		private function onStageResize(e:VideoJSEvent):void
+		{
+			this.w = _model.stageRect.width;
+			this.h = _model.stageRect.height;
+			
+			if(loader == null) return;
+			
+			const disX:int = 15;
+			const disY:int = 10;
+			
+			loader.x = disX;
+			loader.y = disY;
+			
+			switch(watermark_pos)
+			{
+				case "top.left":
+				{
+					loader.x = disX;
+					loader.y = disY;
+					
+					break;
+				}
+					
+				case "top.right":
+				{
+					loader.x = w - loader.width - disX;
+					loader.y = disY;
+					
+					break;
+				}
+					
+				case "bottom.right":
+				{
+					
+					loader.x = disX;
+					loader.y = h - loader.height - disY;
+					
+					break;
+				}
+					
+				case "bottom.left":
+				{
+					
+					loader.x = w - loader.width - disX;
+					loader.y = h - loader.height - disY;
+					
+					
+					break;
+				}
+					
+				case "center":
+				{
+					loader.x = w / 2 - loader.width / 2;
+					loader.y = h / 2 - loader.height / 2;
+					
+					break;
+				}
+					
+				default:
+				{
+					break;
+				}
+			}
+			
 		}
 		
 		private function setThumb():void
