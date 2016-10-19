@@ -46,6 +46,8 @@ package com.videojs{
         private var _poster:String = "";
         private var _parameters:Object;
 
+        public var defaultLevel:int = -1;
+
         private static var _instance:VideoJSModel;
 
         public function VideoJSModel(pLock:SingletonLock){

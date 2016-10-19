@@ -60,6 +60,10 @@ package{
 
             _app.model.stageRect = new Rectangle(0, 0, stage.stageWidth, stage.stageHeight);
 
+            if(stage.loaderInfo.parameters["defaultLevel"] != undefined) {
+                _app.model.defaultLevel = stage.loaderInfo.parameters["defaultLevel"];
+            }
+            
             // add content-menu version info
 
             var _ctxVersion:ContextMenuItem = new ContextMenuItem("VideoJS Flash Component v" + VERSION, false, false);

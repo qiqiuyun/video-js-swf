@@ -58,6 +58,14 @@ package com.videojs.providers{
           
 
           _model = VideoJSModel.getInstance();
+
+          var levelIndex:int = -1;
+          if(_model.defaultLevel != -1) {
+            levelIndex = _model.defaultLevel;
+          }
+          _hls.startLevel = levelIndex;
+          _hls.currentLevel = levelIndex;
+
           _metadata = {};
           _hls.addEventListener(HLSEvent.PLAYBACK_COMPLETE,_completeHandler);
           _hls.addEventListener(HLSEvent.ERROR,_errorHandler);
@@ -103,7 +111,8 @@ package com.videojs.providers{
           _duration = event.levels[0].duration;
           _metadata.width = event.levels[0].width;
           _metadata.height = event.levels[0].height;
-          _hls.currentLevel = _hls.levels.length - 1;
+
+
           if(_isAutoPlay || _looping) {
             _looping = false;
             play();
