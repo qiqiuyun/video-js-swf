@@ -111,8 +111,16 @@ package com.videojs.providers{
           _duration = event.levels[0].duration;
           _metadata.width = event.levels[0].width;
           _metadata.height = event.levels[0].height;
+          var levelIndex:int = -1;
+          if(_model.defaultLevel != -1) {
+            levelIndex = _model.defaultLevel;
+          }
+          if((_hls.levels.length < levelIndex + 1) || (levelIndex + 1 < 0))
+          {
+            level = _hls.levels.length - 1;
+          }
 
-
+          
           if(_isAutoPlay || _looping) {
             _looping = false;
             play();
@@ -232,9 +240,10 @@ package com.videojs.providers{
          */
         private function _fragmentHandler(event:HLSEvent):void {
             var metrics : HLSLoadMetrics = event.loadMetrics;
-            Log.debug("HLSProvider: network: " + Math.round(metrics.bandwidth / 1024 /8) + " kb/s");
+            var loadingTime:Number = metrics.loading_end_time - metrics.loading_begin_time;
+            
             var speed:Number = Math.round(metrics.bandwidth / 1024 /8);
-            _model.broadcastEventExternally(ExternalEventName.ON_NETWORK_SPEED, {speed: speed, bandwidth: metrics.bandwidth, size: metrics.size, url:event.url});
+            _model.broadcastEventExternally(ExternalEventName.ON_NETWORK_SPEED, {speed: speed, loadingTime: loadingTime, bandwidth: metrics.bandwidth, size: metrics.size, url:event.url});
         }
 
         
